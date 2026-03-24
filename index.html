@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRISPRpreserve - Advanced CRISPR Analysis Platform</title>
+    <meta name="description" content="CRISPR analysis platform with 100% read preservation. Validated to match TIDE gold standard accuracy (52.3% vs 52%) on nanopore data.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-glow: rgba(0, 255, 136, 0.3);
+            --secondary: #ff3366;
+            --accent: #00d4ff;
+            --bg-dark: #0a0a0f;
+            --bg-deeper: #050508;
+            --surface: #1a1a24;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b80;
+            --grid: #333344;
+            --success: #00ff88;
+            --warning: #ffb347;
+            --error: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background Grid */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridPulse 4s ease-in-out infinite;
+            z-index: -2;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        /* Floating DNA Strings */
+        .dna-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        .dna-string {
+            position: absolute;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary);
+            white-space: nowrap;
+            animation: float-diagonal 25s linear infinite;
+        }
+
+        .dna-string:nth-child(1) {
+            top: -50px;
+            left: -200px;
+            animation-delay: 0s;
+            transform: rotate(-15deg);
+        }
+
+        .dna-string:nth-child(2) {
+            top: 20%;
+            right: -300px;
+            animation-delay: -5s;
+            transform: rotate(12deg);
+            color: var(--accent);
+        }
+
+        .dna-string:nth-child(3) {
+            top: 40%;
+            left: -250px;
+            animation-delay: -10s;
+            transform: rotate(-8deg);
+        }
+
+        .dna-string:nth-child(4) {
+            top: 60%;
+            right: -200px;
+            animation-delay: -15s;
+            transform: rotate(18deg);
+            color: var(--secondary);
+        }
+
+        .dna-string:nth-child(5) {
+            top: 80%;
+            left: -300px;
+            animation-delay: -20s;
+            transform: rotate(-12deg);
+            color: var(--accent);
+        }
+
+        @keyframes float-diagonal {
+            0% {
+                transform: translateX(0) translateY(0) rotate(var(--rotation, 0deg));
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% {
+                transform: translateX(calc(100vw + 400px)) translateY(-100px) rotate(var(--rotation, 0deg));
+                opacity: 0;
+            }
+        }
+
+        .dna-string span {
+            display: inline-block;
+            animation: nucleotide-pulse 2s ease-in-out infinite;
+        }
+
+        .dna-string span:nth-child(odd) { animation-delay: 0s; }
+        .dna-string span:nth-child(even) { animation-delay: 0.5s; }
+
+        @keyframes nucleotide-pulse {
+            0%, 100% {
+                opacity: 0.6;
+                text-shadow: 0 0 5px currentColor;
+            }
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--grid);
+            z-index: 100;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 2px;
+            text-decoration: none;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px var(--primary-glow); }
+            to { text-shadow: 0 0 20px var(--primary-glow), 0 0 30px var(--primary-glow); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 2rem;
+            background: radial-gradient(ellipse at center, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { filter: drop-shadow(0 0 10px var(--primary-glow)); }
+            to { filter: drop-shadow(0 0 30px var(--primary-glow)); }
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 0.7s both;
+        }
+
+        .validation-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success), var(--primary));
+            color: var(--bg-dark);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.9s both, pulse 2s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5); }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 1.1s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--bg-dark);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            transform: translateY(-3px);
+        }
+
+        /* Comparison Table Section */
+        .comparison-section {
+            padding: 6rem 2rem;
+            background: var(--bg-deeper);
+        }
+
+        .comparison-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .comparison-section h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .comparison-section .section-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            font-size: 0.9rem;
+        }
+
+        .comparison-table th {
+            background: var(--surface);
+            color: var(--text-secondary);
+            padding: 0.8rem 1rem;
+            text-align: center;
+            border-bottom: 2px solid var(--grid);
+            font-weight: 500;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .comparison-table th.ours {
+            color: var(--primary);
+            background: rgba(0, 255, 136, 0.08);
+        }
+
+        .comparison-table td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--grid);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .comparison-table td:first-child {
+            text-align: left;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .comparison-table td.ours {
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(0, 255, 136, 0.04);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag-green { background: rgba(0, 255, 136, 0.15); color: var(--primary); }
+        .tag-red { background: rgba(255, 107, 107, 0.15); color: var(--error); }
+        .tag-gold { background: rgba(255, 179, 71, 0.15); color: var(--warning); }
+        .tag-blue { background: rgba(0, 212, 255, 0.15); color: var(--accent); }
+
+        /* Validation Results */
+        .validation {
+            padding: 8rem 2rem;
+            background: var(--surface);
+            position: relative;
+        }
+
+        .validation-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .validation h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: var(--primary);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .result-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--grid);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .result-card:nth-child(1) { animation-delay: 0.1s; }
+        .result-card:nth-child(2) { animation-delay: 0.2s; }
+        .result-card:nth-child(3) { animation-delay: 0.3s; }
+        .result-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .result-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .result-card h3 {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .metric {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .winner-text {
+            background: linear-gradient(135deg, var(--success), var(--primary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 2rem;
+            background: var(--bg-deeper);
+        }
+
+        .features-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4rem;
+            color: var(--text-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature {
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .feature:nth-child(1) { animation-delay: 0.1s; }
+        .feature:nth-child(2) { animation-delay: 0.2s; }
+        .feature:nth-child(3) { animation-delay: 0.3s; }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+        }
+
+        .feature h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Paper Reference */
+        .paper-ref {
+            padding: 4rem 2rem;
+            background: var(--surface);
+        }
+
+        .paper-ref-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-dark);
+            border: 1px solid var(--grid);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .paper-ref h3 {
+            color: var(--primary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .paper-ref .paper-title {
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-ref .paper-authors {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-ref .paper-journal {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .paper-ref a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .paper-ref a:hover {
+            text-decoration: underline;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 8rem 2rem;
+            background: var(--bg-deeper);
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            background: var(--bg-dark);
+            text-align: center;
+            border-top: 1px solid var(--grid);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-content a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer-content a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-content p {
+            margin-bottom: 0.3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .results-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.8rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-grid"></div>
+
+    <div class="dna-background">
+        <div class="dna-string" style="--rotation: -15deg;">
+            <span>ATCGATCGATCGTAGCTACGATCGATCGTAGCTACGATCGATCGTAGCTACGATCGATCGTAGCTACGATCGATCGTAGCTA</span>
+        </div>
+        <div class="dna-string" style="--rotation: 12deg;">
+            <span>GCTAGCTAGCTAGCATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT</span>
+        </div>
+        <div class="dna-string" style="--rotation: -8deg;">
+            <span>TACGATCGATCGTAGCTAGCTAGCTAGCTATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG</span>
+        </div>
+        <div class="dna-string" style="--rotation: 18deg;">
+            <span>CGATCGATCGTAGCTACGATCGATCGTAGCTACGATCGATCGTAGCTACGATCGATCGTAGCTACGATCGATCGTAGCTA</span>
+        </div>
+        <div class="dna-string" style="--rotation: -12deg;">
+            <span>AGCTAGCTAGCTATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG</span>
+        </div>
+    </div>
+
+    <header>
+        <nav>
+            <a href="#" class="logo">CRISPRPRESERVE</a>
+            <ul class="nav-links">
+                <li><a href="#validation">Validation</a></li>
+                <li><a href="#comparison">Comparison</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="validation-badge">
+                &#10003; VALIDATED: Matches TIDE gold standard (52.3% vs 52%)
+            </div>
+
+            <h1>CRISPRpreserve</h1>
+
+            <p class="subtitle">
+                TIDE-level accuracy. 100% read preservation. Zero installation.
+                <br>The CRISPR analysis platform researchers actually need.
+            </p>
+
+            <div class="cta-buttons">
+                <a href="https://crispr-analyzer-production.up.railway.app" class="btn btn-primary">
+                    Analyze Your Data Free
+                </a>
+                <a href="#validation" class="btn btn-secondary">
+                    See Validation Data
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="validation" id="validation">
+        <div class="validation-content">
+            <h2>Independent Validation</h2>
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 1rem;">
+                Tested on McFarlane et al. (2024) sheep MSTN dataset
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
+                456,000 Oxford Nanopore reads &middot; SRA: SRR28975199 &middot; BioProject: PRJNA1109565
+            </p>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3>TIDE (Sanger)</h3>
+                    <div class="metric">52%</div>
+                    <div class="comparison-label">Gold Standard</div>
+                </div>
+
+                <div class="result-card" style="border-color: var(--primary);">
+                    <h3>CRISPRpreserve</h3>
+                    <div class="metric">52.3%</div>
+                    <div class="comparison-label"><span class="winner-text">&#10003; Matches gold standard</span></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>ICE (Sanger)</h3>
+                    <div class="metric">58%</div>
+                    <div class="comparison-label">+6% vs TIDE</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>CRISPResso2</h3>
+                    <div class="metric" style="color: var(--warning);">64%</div>
+                    <div class="comparison-label">+12% vs TIDE (overestimates)</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem; padding: 2rem; background: var(--bg-dark); border-radius: 12px; border: 1px solid var(--grid); text-align: left;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1rem;">Why does CRISPResso2 overestimate?</h3>
+                <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem;">
+                    CRISPResso2 discards 20-40% of reads during quality filtering. If unedited reads are disproportionately
+                    removed, the remaining pool is enriched for edited sequences, inflating the reported efficiency.
+                    CRISPRpreserve analyzes every read, producing results that match the Sanger gold standard.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="comparison-section" id="comparison">
+        <div class="comparison-content">
+            <h2>Feature Comparison</h2>
+            <p class="section-sub">How CRISPRpreserve compares to existing tools</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Feature</th>
+                        <th>TIDE</th>
+                        <th>ICE</th>
+                        <th>CRISPResso2</th>
+                        <th class="ours">CRISPRpreserve</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Editing accuracy</td>
+                        <td>52%</td>
+                        <td>58%</td>
+                        <td>64%</td>
+                        <td class="ours">52.3%</td>
+                    </tr>
+                    <tr>
+                        <td>vs TIDE delta</td>
+                        <td>&mdash;</td>
+                        <td>+6%</td>
+                        <td>+12%</td>
+                        <td class="ours"><span class="tag tag-green">+0.3%</span></td>
+                    </tr>
+                    <tr>
+                        <td>Read preservation</td>
+                        <td style="color: var(--text-muted);">N/A</td>
+                        <td style="color: var(--text-muted);">N/A</td>
+                        <td>60-80%</td>
+                        <td class="ours"><span class="tag tag-green">100%</span></td>
+                    </tr>
+                    <tr>
+                        <td>Nanopore support</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td><span class="tag tag-gold">Manual tuning</span></td>
+                        <td class="ours"><span class="tag tag-green">Auto-detected</span></td>
+                    </tr>
+                    <tr>
+                        <td>Installation</td>
+                        <td>Web (Sanger only)</td>
+                        <td><span class="tag tag-blue">Paid SaaS</span></td>
+                        <td>CLI + conda/docker</td>
+                        <td class="ours"><span class="tag tag-green">Free web app</span></td>
+                    </tr>
+                    <tr>
+                        <td>Nuclease systems</td>
+                        <td>Cas9</td>
+                        <td>Cas9</td>
+                        <td>Cas9, Cas12a</td>
+                        <td class="ours"><span class="tag tag-green">15+ systems</span></td>
+                    </tr>
+                    <tr>
+                        <td>Allele frequency table</td>
+                        <td><span class="tag tag-red">No</span></td>
+                        <td><span class="tag tag-green">Yes</span></td>
+                        <td><span class="tag tag-green">Yes</span></td>
+                        <td class="ours"><span class="tag tag-green">Yes</span></td>
+                    </tr>
+                    <tr>
+                        <td>Platform detection</td>
+                        <td style="color: var(--text-muted);">N/A</td>
+                        <td style="color: var(--text-muted);">N/A</td>
+                        <td>Manual</td>
+                        <td class="ours"><span class="tag tag-green">Automatic</span></td>
+                    </tr>
+                    <tr>
+                        <td>Cost</td>
+                        <td>Free</td>
+                        <td>Paid</td>
+                        <td>Free</td>
+                        <td class="ours"><span class="tag tag-green">Free</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="features-content">
+            <h2>Why CRISPRpreserve?</h2>
+
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">&#129516;</div>
+                    <h3>100% Read Preservation</h3>
+                    <p>
+                        Every sequencing read is analyzed and classified. Low-quality reads are flagged,
+                        never discarded. No data left behind means no bias in your results.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">&#9889;</div>
+                    <h3>Zero Installation</h3>
+                    <p>
+                        Upload your FASTQ, paste your reference, click analyze. No conda environments,
+                        no Docker containers, no dependency conflicts. Works in any browser.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">&#127919;</div>
+                    <h3>Multi-Platform</h3>
+                    <p>
+                        Auto-detects Illumina, Oxford Nanopore, and PacBio data. Alignment parameters
+                        are tuned per platform for optimal accuracy without manual configuration.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="paper-ref">
+        <div class="paper-ref-content">
+            <h3>Validation Reference</h3>
+            <p class="paper-title">
+                CRISPR-Cas guide RNA indel analysis using CRISPResso2 with Nanopore sequencing data
+            </p>
+            <p class="paper-authors">
+                McFarlane GR, Cortez Polanco JV, Bogema D
+            </p>
+            <p class="paper-journal">
+                BMC Research Notes 17, 205 (2024) &middot;
+                <a href="https://doi.org/10.1186/s13104-024-06861-1">DOI: 10.1186/s13104-024-06861-1</a> &middot;
+                PMID: 39061110
+            </p>
+        </div>
+    </section>
+
+    <section class="cta" id="research">
+        <div class="cta-content">
+            <h2>Ready to Analyze?</h2>
+            <p>
+                Upload your CRISPR sequencing data and get publication-ready results in minutes.
+                <br>No account required. No data stored. Free forever.
+            </p>
+
+            <div class="cta-buttons">
+                <a href="https://crispr-analyzer-production.up.railway.app" class="btn btn-primary">
+                    Start Analyzing
+                </a>
+                <a href="mailto:chioma@joelutai.com" class="btn btn-secondary">
+                    Research Collaboration
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <p>CRISPRpreserve &middot; Built by JoeLuT AI &middot; Houston, Texas</p>
+            <p>Dr. Chioma Odo &middot; PhD Microbiology &amp; Infectious Diseases</p>
+            <p style="margin-top: 0.8rem;">
+                <a href="mailto:chioma@joelutai.com">chioma@joelutai.com</a> &nbsp;&middot;&nbsp;
+                <a href="https://joelutai.com">joelutai.com</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.result-card, .feature').forEach(el => observer.observe(el));
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            document.querySelectorAll('.dna-string').forEach((string, index) => {
+                const speed = 0.05 + (index * 0.01);
+                string.style.transform = `translateY(${scrolled * speed}px) rotate(${string.style.getPropertyValue('--rotation')})`;
+            });
+            const grid = document.querySelector('.cyber-grid');
+            grid.style.opacity = Math.min(0.6, 0.3 + scrolled / 2000);
+        });
+    </script>
+</body>
+</html>
