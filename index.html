@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRISPRpreserve - Advanced CRISPR Analysis Platform</title>
-    <meta name="description" content="CRISPR analysis platform with 100% read preservation. Validated to match TIDE gold standard accuracy (52.3% vs 52%) on nanopore data.">
+    <title>CRISPRpreserve - CRISPR Indel Analysis for Nanopore Data</title>
+    <meta name="description" content="CRISPR indel analysis built for Oxford Nanopore sequencing data. Alignment parameters tuned for nanopore error profiles. Free, browser based, no installation.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -254,7 +254,7 @@
 
         .hero h1 {
             font-family: 'Orbitron', monospace;
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-size: clamp(2rem, 6vw, 4.5rem);
             font-weight: 900;
             margin-bottom: 1.5rem;
             background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -276,24 +276,6 @@
             margin-bottom: 2rem;
             font-weight: 400;
             animation: fadeInUp 1s ease-out 0.7s both;
-        }
-
-        .validation-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--success), var(--primary));
-            color: var(--bg-dark);
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 3rem;
-            animation: fadeInUp 1s ease-out 0.9s both, pulse 2s ease-in-out infinite;
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5); }
         }
 
         .cta-buttons {
@@ -489,6 +471,12 @@
             font-weight: 800;
             color: var(--primary);
             margin-bottom: 0.5rem;
+        }
+
+        .metric-range {
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
         }
 
         .comparison-label {
@@ -692,6 +680,15 @@
             .comparison-table td {
                 padding: 0.5rem;
             }
+
+            .comparison-content {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .features h2 {
+                font-size: 1.8rem;
+            }
         }
 
         /* Custom Scrollbar */
@@ -736,7 +733,7 @@
 
     <header>
         <nav>
-            <a href="#" class="logo">CRISPRPRESERVE</a>
+            <a href="#" class="logo">CRISPRpreserve</a>
             <ul class="nav-links">
                 <li><a href="#validation">Validation</a></li>
                 <li><a href="#comparison">Comparison</a></li>
@@ -748,15 +745,10 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div class="validation-badge">
-                &#10003; VALIDATED: Matches TIDE gold standard (52.3% vs 52%)
-            </div>
-
             <h1>CRISPRpreserve</h1>
 
             <p class="subtitle">
-                TIDE-level accuracy. 100% read preservation. Zero installation.
-                <br>The CRISPR analysis platform researchers actually need.
+                Alignment tuned for nanopore error profiles. Every read classified rather than discarded. Runs in the browser.
             </p>
 
             <div class="cta-buttons">
@@ -784,34 +776,57 @@
                 <div class="result-card">
                     <h3>TIDE (Sanger)</h3>
                     <div class="metric">52%</div>
-                    <div class="comparison-label">Gold Standard</div>
+                    <div class="comparison-label">Sanger, McFarlane et al. 2024</div>
                 </div>
 
                 <div class="result-card" style="border-color: var(--primary);">
                     <h3>CRISPRpreserve</h3>
-                    <div class="metric">52.3%</div>
-                    <div class="comparison-label"><span class="winner-text">&#10003; Matches gold standard</span></div>
+                    <div class="metric metric-range">47.6-98.7%</div>
+                    <div class="comparison-label"><span class="winner-text">Range across settings</span></div>
                 </div>
 
                 <div class="result-card">
                     <h3>ICE (Sanger)</h3>
                     <div class="metric">58%</div>
-                    <div class="comparison-label">+6% vs TIDE</div>
+                    <div class="comparison-label">Sanger</div>
                 </div>
 
                 <div class="result-card">
                     <h3>CRISPResso2</h3>
                     <div class="metric" style="color: var(--warning);">64%</div>
-                    <div class="comparison-label">+12% vs TIDE (overestimates)</div>
+                    <div class="comparison-label">Reported in McFarlane et al. 2024</div>
                 </div>
             </div>
 
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 2rem;">
+                On this dataset the current build returns between 47.6% and 98.7% depending on alignment
+                and filter settings. Published values for the same sample are 52% (TIDE), 58% (ICE) and
+                64% (CRISPResso2). Parameter calibration is in progress and no configuration is presented
+                as validated.
+            </p>
+
             <div style="margin-top: 4rem; padding: 2rem; background: var(--bg-dark); border-radius: 12px; border: 1px solid var(--grid); text-align: left;">
-                <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1rem;">Why does CRISPResso2 overestimate?</h3>
+                <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1rem;">Why a nanopore specific tool?</h3>
                 <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem;">
-                    CRISPResso2 discards 20-40% of reads during quality filtering. If unedited reads are disproportionately
-                    removed, the remaining pool is enriched for edited sequences, inflating the reported efficiency.
-                    CRISPRpreserve analyzes every read, producing results that match the Sanger gold standard.
+                    CRISPResso2 is the standard pipeline for CRISPR amplicon analysis and it is well built for what it was
+                    designed around: short read Illumina data. Its preprocessing reflects that, including Illumina adapter
+                    trimming, paired end merging, and an alignment step where the default minimum alignment score requires
+                    roughly 60% homology to the reference amplicon for a read to be retained. That threshold is documented,
+                    deliberate, and appropriate quality control for short read data.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem; margin-top: 1rem;">
+                    Nanopore reads carry higher per base error. Our working hypothesis is that this pushes a larger share of
+                    nanopore reads below that threshold on default settings, so they are excluded before quantification.
+                    Where attrition is severe, the surviving coverage can be too thin to support a reliable estimate.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem; margin-top: 1rem;">
+                    CRISPRpreserve uses alignment parameters tuned for nanopore error profiles. It classifies and reports
+                    every read rather than dropping reads that fail a homology cutoff, flagging low confidence alignments
+                    instead.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem; margin-top: 1rem;">
+                    This is a domain fit argument, not a claim of superior accuracy. We have not run paired samples against
+                    a known ground truth, and we are not claiming CRISPRpreserve is more accurate than CRISPResso2.
                 </p>
             </div>
         </div>
@@ -826,75 +841,68 @@
                 <thead>
                     <tr>
                         <th style="text-align: left;">Feature</th>
+                        <th class="ours">CRISPRpreserve</th>
                         <th>TIDE</th>
                         <th>ICE</th>
                         <th>CRISPResso2</th>
-                        <th class="ours">CRISPRpreserve</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Editing accuracy</td>
+                        <td>Efficiency on McFarlane et al. 2024</td>
+                        <td class="ours">47.6-98.7%</td>
                         <td>52%</td>
                         <td>58%</td>
                         <td>64%</td>
-                        <td class="ours">52.3%</td>
                     </tr>
                     <tr>
-                        <td>vs TIDE delta</td>
-                        <td>&mdash;</td>
-                        <td>+6%</td>
-                        <td>+12%</td>
-                        <td class="ours"><span class="tag tag-green">+0.3%</span></td>
-                    </tr>
-                    <tr>
-                        <td>Read preservation</td>
+                        <td>Read handling</td>
+                        <td class="ours">All reads classified and reported, low confidence flagged</td>
                         <td style="color: var(--text-muted);">N/A</td>
                         <td style="color: var(--text-muted);">N/A</td>
-                        <td>60-80%</td>
-                        <td class="ours"><span class="tag tag-green">100%</span></td>
+                        <td>Reads below alignment threshold discarded (default ~60% homology)</td>
                     </tr>
                     <tr>
                         <td>Nanopore support</td>
+                        <td class="ours"><span class="tag tag-green">Built-in (selectable)</span></td>
                         <td><span class="tag tag-red">No</span></td>
                         <td><span class="tag tag-red">No</span></td>
                         <td><span class="tag tag-gold">Manual tuning</span></td>
-                        <td class="ours"><span class="tag tag-green">Auto-detected</span></td>
                     </tr>
                     <tr>
                         <td>Installation</td>
+                        <td class="ours"><span class="tag tag-green">Free web app</span></td>
                         <td>Web (Sanger only)</td>
                         <td><span class="tag tag-blue">Paid SaaS</span></td>
                         <td>CLI + conda/docker</td>
-                        <td class="ours"><span class="tag tag-green">Free web app</span></td>
                     </tr>
                     <tr>
                         <td>Nuclease systems</td>
+                        <td class="ours"><span class="tag tag-green">Nuclease-agnostic (15 presets)</span></td>
                         <td>Cas9</td>
                         <td>Cas9</td>
                         <td>Cas9, Cas12a</td>
-                        <td class="ours"><span class="tag tag-green">Agnostic + 15</span></td>
                     </tr>
                     <tr>
                         <td>Allele frequency table</td>
+                        <td class="ours"><span class="tag tag-green">Yes</span></td>
                         <td><span class="tag tag-red">No</span></td>
                         <td><span class="tag tag-green">Yes</span></td>
                         <td><span class="tag tag-green">Yes</span></td>
-                        <td class="ours"><span class="tag tag-green">Yes</span></td>
                     </tr>
                     <tr>
                         <td>Platform detection</td>
+                        <td class="ours"><span class="tag tag-green">Manual selection, auto-detect in development</span></td>
                         <td style="color: var(--text-muted);">N/A</td>
                         <td style="color: var(--text-muted);">N/A</td>
                         <td>Manual</td>
-                        <td class="ours"><span class="tag tag-green">Automatic</span></td>
                     </tr>
                     <tr>
                         <td>Cost</td>
+                        <td class="ours"><span class="tag tag-green">Free</span></td>
                         <td>Free</td>
                         <td>Paid</td>
                         <td>Free</td>
-                        <td class="ours"><span class="tag tag-green">Free</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -908,10 +916,10 @@
             <div class="features-grid">
                 <div class="feature">
                     <div class="feature-icon">&#129516;</div>
-                    <h3>100% Read Preservation</h3>
+                    <h3>Every Read Classified</h3>
                     <p>
-                        Every sequencing read is analyzed and classified. Low-quality reads are flagged,
-                        never discarded. No data left behind means no bias in your results.
+                        Reads are classified and reported rather than dropped at a homology cutoff. Low confidence
+                        alignments are flagged so you can see what the tool was unsure about instead of losing it silently.
                     </p>
                 </div>
 
@@ -926,10 +934,13 @@
 
                 <div class="feature">
                     <div class="feature-icon">&#127919;</div>
-                    <h3>Nuclease-Agnostic</h3>
+                    <h3>Driven By Your Guide, Not The PAM</h3>
                     <p>
-                        Works with any CRISPR system — Cas9, Cas12a, Cas12f, base editors, prime editors,
-                        or anything else. Just provide your sgRNA and reference. No PAM configuration needed.
+                        Quantification is based on the sgRNA coordinates you supply rather than PAM sequence
+                        or nuclease identity, so Cas9, Cas12a, Cas12f and other nucleases are handled the same
+                        way with no PAM configuration. Indels and substitutions are both called and reported,
+                        and base conversions are tallied separately. Prime editing outcomes are not
+                        specifically modelled.
                     </p>
                 </div>
             </div>
@@ -938,7 +949,7 @@
 
     <section class="paper-ref">
         <div class="paper-ref-content">
-            <h3>Validation Reference</h3>
+            <h3>Dataset Source</h3>
             <p class="paper-title">
                 CRISPR-Cas guide RNA indel analysis using CRISPResso2 with Nanopore sequencing data
             </p>
@@ -957,8 +968,8 @@
         <div class="cta-content">
             <h2>Ready to Analyze?</h2>
             <p>
-                Upload your CRISPR sequencing data and get publication-ready results in minutes.
-                <br>No account required. No data stored. Free forever.
+                Upload your FASTQ, paste your reference, get an allele table and efficiency estimate.
+                <br>No account required. Free to use.
             </p>
 
             <div class="cta-buttons">
