@@ -431,67 +431,6 @@
             color: var(--primary);
         }
 
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-        }
-
-        .result-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--grid);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.8s ease-out both;
-        }
-
-        .result-card:nth-child(1) { animation-delay: 0.1s; }
-        .result-card:nth-child(2) { animation-delay: 0.2s; }
-        .result-card:nth-child(3) { animation-delay: 0.3s; }
-        .result-card:nth-child(4) { animation-delay: 0.4s; }
-
-        .result-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
-        }
-
-        .result-card h3 {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            letter-spacing: 1px;
-        }
-
-        .metric {
-            font-family: 'Orbitron', monospace;
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-range {
-            font-size: 1.6rem;
-            letter-spacing: -0.02em;
-            white-space: nowrap;
-        }
-
-        .comparison-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .winner-text {
-            background: linear-gradient(135deg, var(--success), var(--primary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
-        }
-
         /* Features Section */
         .features {
             padding: 8rem 2rem;
@@ -667,7 +606,6 @@
                 align-items: center;
             }
 
-            .results-grid,
             .features-grid {
                 grid-template-columns: 1fr;
             }
@@ -735,7 +673,6 @@
         <nav>
             <a href="#" class="logo">CRISPRpreserve</a>
             <ul class="nav-links">
-                <li><a href="#validation">Validation</a></li>
                 <li><a href="#comparison">Comparison</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -764,45 +701,9 @@
 
     <section class="validation" id="validation">
         <div class="validation-content">
-            <h2>Independent Validation</h2>
-            <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 1rem;">
-                Tested on McFarlane et al. (2024) sheep MSTN dataset
-            </p>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
-                456,000 Oxford Nanopore reads &middot; SRA: SRR28975199 &middot; BioProject: PRJNA1109565
-            </p>
-
-            <div class="results-grid">
-                <div class="result-card">
-                    <h3>TIDE (Sanger)</h3>
-                    <div class="metric">52%</div>
-                    <div class="comparison-label">Sanger, McFarlane et al. 2024</div>
-                </div>
-
-                <div class="result-card" style="border-color: var(--primary);">
-                    <h3>CRISPRpreserve</h3>
-                    <div class="metric metric-range">47.6-98.7%</div>
-                    <div class="comparison-label"><span class="winner-text">Range across settings</span></div>
-                </div>
-
-                <div class="result-card">
-                    <h3>ICE (Sanger)</h3>
-                    <div class="metric">58%</div>
-                    <div class="comparison-label">Sanger</div>
-                </div>
-
-                <div class="result-card">
-                    <h3>CRISPResso2</h3>
-                    <div class="metric" style="color: var(--warning);">64%</div>
-                    <div class="comparison-label">Reported in McFarlane et al. 2024</div>
-                </div>
-            </div>
-
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 2rem;">
-                On this dataset the current build returns between 47.6% and 98.7% depending on alignment
-                and filter settings. Published values for the same sample are 52% (TIDE), 58% (ICE) and
-                64% (CRISPResso2). Parameter calibration is in progress and no configuration is presented
-                as validated.
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Parameter calibration against published reference datasets is in progress. No accuracy
+                figure is presented until that work is complete.
             </p>
 
             <div style="margin-top: 4rem; padding: 2rem; background: var(--bg-dark); border-radius: 12px; border: 1px solid var(--grid); text-align: left;">
@@ -1012,7 +913,7 @@
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-        document.querySelectorAll('.result-card, .feature').forEach(el => observer.observe(el));
+        document.querySelectorAll('.feature').forEach(el => observer.observe(el));
 
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
